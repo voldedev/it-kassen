@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT-værktøjskassen</title>
+<style>
+:root{--bg:#f7f7f4;--card:#fcfcfa;--ink:#26251e;--mute:#6b6a62;--line:#e4e3dd;--acc:#26251e;--acc2:#efeee9;--net:#dde8da;--host:#f0e1c6;--bad:#b3261e;--badbg:#fbe9e7;--ok:#1f7a45;--pop:#f54e00}
+@media (prefers-color-scheme:dark){:root{--bg:#14120b;--card:#1b1912;--ink:#edecec;--mute:#a19e93;--line:#2e2c24;--acc:#edecec;--acc2:#24221b;--net:#2b3d2d;--host:#4a3b1c;--bad:#ff8a80;--badbg:#3a1d1b;--ok:#6fd49b}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:20px 16px 8px;max-width:960px;margin:0 auto}
+h1{margin:0;font-size:1.6rem;letter-spacing:-.01em}
+header p{margin:4px 0 0;color:var(--mute)}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav div{max-width:960px;margin:0 auto;display:flex;gap:6px;padding:10px 16px;overflow-x:auto}
+nav button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:8px;font:inherit;cursor:pointer}
+nav button[aria-selected=true]{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+@media (prefers-color-scheme:dark){nav button[aria-selected=true]{color:#06201f}}
+main{max-width:960px;margin:0 auto;padding:16px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+h2{font-size:1.15rem;margin:0 0 4px}h3{font-size:1rem;margin:16px 0 6px}
+.hint{color:var(--mute);font-size:.92rem;margin:0 0 12px}
+label{display:block;font-size:.9rem;font-weight:600;margin:10px 0 4px}
+input,select,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;min-height:140px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.btn{border:0;background:var(--acc);color:#fff;padding:10px 16px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;margin-top:10px}
+@media (prefers-color-scheme:dark){.btn{color:#06201f}}
+.btn.alt{background:var(--acc2);color:var(--acc);border:1px solid var(--line)}
+.row{display:grid;grid-template-columns:1fr 100px 1fr 40px;gap:8px;margin-bottom:8px}@media (max-width:560px){.row{grid-template-columns:1fr 100px 40px}.row .rb{grid-column:1/3;grid-row:2}.row .x{grid-column:3;grid-row:1}}
+.row .x{border:1px solid var(--line);background:var(--card);color:var(--mute);border-radius:8px;cursor:pointer;font-size:1rem}
+.err{background:var(--badbg);color:var(--bad);border-radius:8px;padding:10px 12px;margin:12px 0;font-weight:600}
+.okmsg{color:var(--ok);font-weight:600;margin:12px 0}
+dl{margin:12px 0 0;display:grid;grid-template-columns:minmax(110px,max-content) 1fr;gap:6px 14px}
+dt{color:var(--mute)}dd{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+.bits{font-family:ui-monospace,Menlo,Consolas,monospace;line-height:2;word-break:break-all}
+.bits span{padding:2px 1px;border-radius:3px;background:var(--host)}
+.bits span.n{background:var(--net)}
+.bits .g{display:inline-block;width:.6em}
+.legend{font-size:.85rem;color:var(--mute);margin-top:6px}
+.legend span{padding:1px 8px;border-radius:3px;background:var(--net)}.legend span+span{background:var(--host)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.m,.m{font-family:ui-monospace,Menlo,Consolas,monospace}
+th{color:var(--mute);font-weight:600}
+details{border-top:1px solid var(--line);padding:10px 0}
+summary{cursor:pointer;font-weight:600}
+.btn{margin-right:6px}
+.ii{min-width:130px}
+.ix{border:1px solid var(--line);background:var(--card);color:var(--mute);border-radius:8px;cursor:pointer;padding:8px 10px;font:inherit}
+#ipp td{padding:4px 6px}
+.st{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.st>div{flex:1}.st .hint{margin:0;font-size:.85rem}.dot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--mute)}.dot.ok{background:var(--ok)}.dot.warn{background:#d99a00}.dot.bad{background:var(--bad)}
+.vi{min-width:130px}#ivl td{padding:4px 6px}#ivl li{margin:4px 0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+header{padding:48px 16px 20px}
+h1{font-size:clamp(2.1rem,6.5vw,3.4rem);line-height:1.08;font-weight:600;letter-spacing:-.035em}
+header p{font-size:1.1rem;max-width:34rem;margin-top:12px}
+h2{font-size:1.3rem;font-weight:600;letter-spacing:-.02em}
+h3{font-weight:600;letter-spacing:-.01em}
+nav{border-bottom:1px solid var(--line)}
+nav button{border:0;background:transparent;color:var(--mute);padding:8px 14px;border-radius:999px;font-weight:500}
+nav button:hover{color:var(--ink);background:var(--acc2)}
+nav button[aria-selected=true]{background:var(--acc);color:var(--bg);font-weight:600}
+.card{border-radius:14px;padding:20px;box-shadow:none}
+input,select,textarea{border-radius:9px;background:var(--card)}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--pop);outline-offset:1px}
+.btn{background:var(--acc);color:var(--bg);border-radius:999px;padding:10px 18px}
+.btn.alt{background:var(--acc2);color:var(--ink);border:1px solid var(--line)}
+.btn:hover{opacity:.88}
+.ix,.row .x{border-radius:9px}
+th{font-weight:500;font-size:.85rem}
+.okmsg{font-weight:500}
+details{border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:no-preference){.btn,nav button{transition:opacity .15s,background .15s,color .15s}}
+</style>
+</head>
+<body>
+<header>
+<h1>IT-værktøjskassen</h1>
+<p>Netværk, IP-adresser, VLAN og status samlet ét sted. Alt regnes direkte i din browser.</p>
+</header>
+<nav><div role="tablist" id="tabs">
+<button role="tab" data-t="plan" aria-selected="true">Netværksplan</button>
+<button role="tab" data-t="calc" aria-selected="false">IP-beregner</button>
+<button role="tab" data-t="conv" aria-selected="false">Bits ⇄ IP</button>
+<button role="tab" data-t="acl" aria-selected="false">Wildcard/ACL</button>
+<button role="tab" data-t="ipp" aria-selected="false">IP-plan</button>
+<button role="tab" data-t="ivl" aria-selected="false">Inter-VLAN</button>
+<button role="tab" data-t="porte" aria-selected="false">Porte</button>
+<button role="tab" data-t="stat" aria-selected="false">Online-status</button>
+<button role="tab" data-t="tools" aria-selected="false">Værktøjer</button>
+</div></nav>
+<main>
+
+<section id="plan" class="on">
+<div class="card"><h2>Gemte planer</h2>
+<p class="hint">Dit arbejde huskes automatisk i browseren. Giv planen et navn for at gemme flere.</p>
+<div class="grid"><div><label for="s-name">Navn</label><input id="s-name" placeholder="fx Hovedkontor"></div><div><label for="s-sel">Åbn gemt plan</label><select id="s-sel"></select></div></div>
+<button class="btn" id="s-save">Gem plan</button><button class="btn alt" id="s-new">Ny plan</button><button class="btn alt" id="s-del">Slet</button> <span class="hint" id="s-msg"></span></div>
+<div class="card">
+<h2>Planlæg netværk</h2>
+<p class="hint">Svar på tre ting, så regner siden resten ud: hvor stort dit netværk er, hvilke grupper af enheder du har, og et par indstillinger.</p>
+<h3>Trin 1: Vælg dit store netværk</h3>
+<p class="hint">Tænk på det som et stort stykke jord, du deler op i mindre grunde. Er du i tvivl, så brug det der står.</p>
+<div class="grid">
+<div><label for="p-base">Netværksadresse</label><input id="p-base" value="192.168.0.0/16" autocapitalize="off"></div>
+<div><label for="p-pre">Eller vælg et forslag</label><select id="p-pre"><option value="">Vælg…</option><option value="192.168.0.0/24">192.168.0.0/24 (lille, op til 254 enheder)</option><option value="192.168.0.0/16">192.168.0.0/16 (stort, mange netværk)</option><option value="172.16.0.0/12">172.16.0.0/12 (meget stort)</option><option value="10.0.0.0/8">10.0.0.0/8 (enormt)</option></select></div>
+</div>
+<h3>Trin 2: Hvilke netværk skal du bruge?</h3>
+<p class="hint">Lav ét netværk til hver gruppe, fx Kontor, Gæster og Servere. Skriv hvor mange enheder (computere, telefoner, printere m.m.) hver gruppe skal have. Siden lægger lidt ekstra til, så der er plads. Har du flere forskellige netværksadresser, fx én pr. afdeling? Skriv så adressen i feltet “Eget netværk” på rækken. Står feltet tomt, bruges adressen fra Trin 1.</p>
+<div id="rows"></div>
+<button class="btn alt" id="add">+ Tilføj netværk</button>
+<h3>Trin 3: Indstillinger</h3>
+<div class="grid">
+<div><label for="p-gw">Hvor skal routeren (gateway) ligge?</label><select id="p-gw"><option value="first">Første IP i netværket (.1)</option><option value="last">Sidste IP i netværket</option></select></div>
+<div><label for="p-static">Faste IP'er pr. netværk</label><input id="p-static" type="number" min="0" value="5"></div>
+<div><label for="p-dns">DNS-server</label><input id="p-dns" value="1.1.1.1"></div>
+<div><label for="p-lease">Hvor længe må en enhed beholde sin IP? (dage)</label><input id="p-lease" type="number" min="1" value="1"></div>
+</div>
+<p class="hint">Faste IP'er er adresser der aldrig ændrer sig, fx til printere og servere. DNS-serveren oversætter navne som google.dk til IP-adresser.</p>
+<details><summary>Hvad betyder ordene?</summary>
+<p><b>Netværksadresse:</b> adressen på selve netværket, fx 192.168.10.0. Kan ikke bruges til en enhed.</p>
+<p><b>/24 (CIDR):</b> fortæller hvor stort netværket er. Jo større tal, jo færre enheder. /24 giver plads til 254.</p>
+<p><b>Subnetmaske:</b> samme information som /24, bare skrevet som tal, fx 255.255.255.0.</p>
+<p><b>Gateway:</b> routerens IP. Enhederne sender trafik hertil, når de skal ud af netværket, fx til internettet.</p>
+<p><b>DHCP:</b> giver automatisk en IP til enheder, der tilsluttes. Området viser hvilke IP'er der bliver delt ud.</p>
+<p><b>Broadcast:</b> sidste adresse i netværket. Bruges til at råbe til alle på én gang, og kan ikke bruges til en enhed.</p>
+</details>
+</div>
+<div id="p-out"></div>
+</section>
+
+<section id="calc">
+<div class="card">
+<h2>IP-beregner (IPv4 og IPv6)</h2>
+<p class="hint">Skriv fx <span class="m">192.168.1.10/24</span>, <span class="m">10.0.0.5 255.255.0.0</span> eller <span class="m">2001:db8::1/64</span>.</p>
+<label for="c-in">Adresse</label>
+<input id="c-in" value="192.168.1.10/24" autocapitalize="off" autocomplete="off">
+<div id="c-out"></div>
+</div>
+<div class="card">
+<h3 style="margin-top:0">Ligger en IP i et netværk?</h3>
+<div class="grid">
+<div><label for="m-ip">IP-adresse</label><input id="m-ip" value="192.168.1.77"></div>
+<div><label for="m-net">Netværk</label><input id="m-net" value="192.168.1.0/26"></div>
+</div>
+<div id="m-out"></div>
+</div>
+</section>
+
+<section id="conv">
+<div class="card">
+<h2>Bits ⇄ IP</h2>
+<p class="hint">Skriv en IP, binære bits, et decimaltal eller hex. Siden gætter selv formatet. Virker med IPv4 (32 bit) og IPv6 (128 bit).</p>
+<label for="v-dir">Hvad vil du?</label>
+<select id="v-dir"><option value="a">Find selv ud af det</option><option value="i">IP → bits</option><option value="b">Bits → IP</option></select>
+<label for="v-in">Indtast</label>
+<input id="v-in" value="192.168.1.10" autocapitalize="off" autocomplete="off">
+<div id="v-out"></div>
+<p class="hint" style="margin-top:12px">Eksempler: <span class="m">11000000.10101000.00000001.00001010</span> · <span class="m">3232235786</span> · <span class="m">0xC0A8010A</span> · <span class="m">fe80::1</span></p>
+</div>
+</section>
+
+<section id="tools">
+<div class="card">
+<h2>Flere værktøjer</h2>
+<details open><summary>Overførselstid</summary>
+<div class="grid">
+<div><label for="t-size">Filstørrelse</label><input id="t-size" type="number" min="0" value="50"></div>
+<div><label for="t-su">Enhed</label><select id="t-su"><option value="1e6">MB</option><option value="1e9" selected>GB</option><option value="1e12">TB</option></select></div>
+<div><label for="t-sp">Hastighed</label><input id="t-sp" type="number" min="0" value="100"></div>
+<div><label for="t-spu">Enhed</label><select id="t-spu"><option value="1e6" selected>Mbit/s</option><option value="1e9">Gbit/s</option><option value="8e6">MB/s</option></select></div>
+</div>
+<div id="t-out"></div></details>
+<details><summary>Talsystemer</summary>
+<div class="grid">
+<div><label for="b-in">Tal</label><input id="b-in" value="255" autocapitalize="off"></div>
+<div><label for="b-base">Skrevet som</label><select id="b-base"><option value="10">Decimal</option><option value="2">Binær</option><option value="16">Hex</option><option value="8">Oktal</option></select></div>
+</div>
+<div id="b-out"></div></details>
+<details><summary>CIDR-tabel</summary><div class="tw"><table id="cidr"></table></div></details>
+
+</div>
+</section>
+<section id="acl">
+<div class="card"><h2>Wildcard til access list</h2>
+<p class="hint">Et wildcard er netmasken vendt om. <b>0</b> betyder “skal være ens”, <b>255</b> betyder “er lige meget”. Fx passer <span class="m">192.168.1.0 0.0.0.255</span> på alle adresser fra 192.168.1.0 til 192.168.1.255. Udfyld felterne, så laver siden reglen.</p>
+<div class="grid">
+<div><label for="a-act">Handling</label><select id="a-act"><option value="permit">permit (tillad)</option><option value="deny">deny (bloker)</option></select></div>
+<div><label for="a-pro">Protokol</label><select id="a-pro"><option>ip</option><option selected>tcp</option><option>udp</option><option>icmp</option></select></div>
+<div><label for="a-src">Fra (kilde)</label><input id="a-src" value="192.168.10.0/24" autocapitalize="off"></div>
+<div><label for="a-dst">Til (mål)</label><input id="a-dst" value="any" autocapitalize="off"></div>
+<div><label for="a-port">Port (valgfri)</label><input id="a-port" value="443" placeholder="443, 80-90 eller www"></div>
+<div><label for="a-name">Navn på ACL</label><input id="a-name" value="KONTOR-UD"></div>
+</div>
+<p class="hint">Fra og Til: skriv <span class="m">any</span> (alle), en IP som <span class="m">192.168.1.5</span> (én maskine) eller et netværk som <span class="m">192.168.1.0/24</span>.</p>
+<div id="a-out"></div></div>
+<div class="card"><h3 style="margin-top:0">Fra IP-område til wildcard</h3>
+<p class="hint">Skal reglen ramme et område, der ikke er ét helt netværk, fx .10 til .20? Her får du de netværk og wildcards, der skal til.</p>
+<div class="grid"><div><label for="r-a">Første IP</label><input id="r-a" value="192.168.1.10"></div><div><label for="r-b">Sidste IP</label><input id="r-b" value="192.168.1.20"></div></div>
+<div id="r-out"></div></div>
+</section>
+
+<section id="ipp">
+<div class="card"><h2>IP- og portplan</h2>
+<p class="hint">Giv dine netværk og VLAN et navn, og skriv derefter enhederne ind med IP og switchport. Alt gemmes automatisk i din browser, og siden siger til, hvis noget ikke passer sammen.</p>
+<h3>VLAN og netværk</h3><div class="tw" id="ipn"></div><button class="btn alt" data-add="n">+ Tilføj VLAN/netværk</button>
+<h3>Enheder og porte</h3><div class="tw" id="ipd"></div><button class="btn alt" data-add="d">+ Tilføj enhed</button></div>
+<div id="ipchk"></div>
+<div class="card"><button class="btn" id="xl" style="margin-top:0">Download som Excel</button>
+<p class="hint">Filen får to ark: VLAN og netværk, og Enheder og porte. Planen bliver kun i denne browser, så download en kopi, hvis den er vigtig.</p></div>
+</section>
+
+<section id="porte">
+<div class="card"><h2>Porte</h2><p class="hint">Almindelige porte med protokol. Brug dem fx i access lists og firewallregler.</p>
+<input id="pf" placeholder="Søg, fx ssh eller 443" autocapitalize="off"><div class="tw" style="margin-top:10px"><table id="ports"></table></div></div>
+</section>
+<section id="stat">
+<div class="card"><h2>Online-status</h2>
+<p class="hint">Siden tjekker automatisk hvert 10. sekund, så længe du er på denne fane. Næste tjek om <b id="st-cd">10</b> sek.<button class="btn alt" id="st-p" style="margin:0 0 0 10px">Pause</button></p>
+<div id="st-sum"></div><div id="st-list"></div>
+<details><summary>Sådan virker tjekket</summary>
+<p><b>Officielle statussider:</b> Siden spørger tjenestens egen statusside. Her kan du også se delvise fejl.</p>
+<p><b>Kan nås fra din browser:</b> Siden tester, om din browser kan få forbindelse, og hvor hurtigt. Det viser ikke, om tjenesten har fejl indeni, og en adblocker kan give falsk alarm.</p>
+<p><b>Dine egne servere:</b> Kræver en https-adresse. En hjemmeside kan ikke pinge eller tjekke porte, så kun webadresser kan tjekkes.</p>
+</details></div>
+<div class="card"><h3 style="margin-top:0">Tilføj din egen server</h3>
+<div class="grid"><div><label for="st-n">Navn</label><input id="st-n" placeholder="fx Min webserver"></div><div><label for="st-u">Adresse (https)</label><input id="st-u" placeholder="https://minserver.dk" autocapitalize="off"></div></div>
+<button class="btn" id="st-add">Tilføj</button><span class="hint" id="st-m"></span></div>
+</section>
+<section id="ivl">
+<div class="card"><h2>Inter-VLAN routing</h2>
+<p><b>VLAN</b> deler ét fysisk netværk op i flere adskilte netværk. Computere i VLAN 10 kan som udgangspunkt ikke tale med computere i VLAN 20, selvom de sidder på samme switch.</p>
+<p><b>Inter-VLAN routing</b> lader dem tale sammen alligevel, men under kontrol. Trafikken sendes til en router (eller en Layer 3-switch), som sender den videre til det rigtige VLAN.</p>
+<p>Hvert VLAN får sit eget netværk og en <b>gateway</b>: routerens adresse i det netværk. PC'erne bruger gatewayen, når de skal til et andet VLAN.</p>
+<svg viewBox="0 0 360 160" role="img" aria-label="En router er forbundet til en switch med et trunk-kabel. Switchen har to VLAN med hver sine PC'er." style="max-width:420px;width:100%;display:block;margin:8px 0" fill="none" stroke="currentColor" stroke-width="1.5" font-family="system-ui,sans-serif" font-size="12">
+<rect x="130" y="6" width="100" height="32" rx="6"/><text x="180" y="27" text-anchor="middle" fill="currentColor" stroke="none">Router</text>
+<path d="M180 38V78"/><text x="188" y="62" fill="currentColor" stroke="none">trunk (alle VLAN)</text>
+<rect x="130" y="78" width="100" height="32" rx="6"/><text x="180" y="99" text-anchor="middle" fill="currentColor" stroke="none">Switch</text>
+<path d="M150 110L80 124M210 110L280 124"/>
+<rect x="20" y="124" width="120" height="30" rx="6" style="fill:var(--net)"/><text x="80" y="143" text-anchor="middle" fill="currentColor" stroke="none">VLAN 10: PC'er</text>
+<rect x="220" y="124" width="120" height="30" rx="6" style="fill:var(--host)"/><text x="280" y="143" text-anchor="middle" fill="currentColor" stroke="none">VLAN 20: PC'er</text></svg>
+<details><summary>De to metoder</summary>
+<p><b>Router-on-a-stick:</b> Én kabel (trunk) mellem switch og router bærer alle VLAN. Billig og nem, men al trafik mellem VLAN går gennem det ene kabel.</p>
+<p><b>Layer 3-switch (SVI):</b> Switchen kan selv route. Hvert VLAN får et virtuelt interface med gatewayen. Hurtigere, og det er det, de fleste virksomheder bruger.</p></details></div>
+<div class="card"><h3 style="margin-top:0">Lav konfigurationen</h3>
+<div class="grid"><div><label for="i-m">Metode</label><select id="i-m"><option value="rosa">Router-on-a-stick (router + switch)</option><option value="l3">Layer 3-switch (SVI)</option></select></div>
+<div><label for="i-rt">Routerens port (kun router-on-a-stick)</label><input id="i-rt" autocapitalize="off"></div>
+<div><label for="i-sw">Switchens trunk-port (kun router-on-a-stick)</label><input id="i-sw" autocapitalize="off"></div></div>
+<h3>VLAN</h3><p class="hint">Skriv nummer, navn og gatewayen med størrelse. Husk at hvert VLAN skal have sit eget netværk.</p>
+<div class="tw" id="ivt"></div><button class="btn alt" id="iv-add">+ Tilføj VLAN</button><button class="btn alt" id="iv-imp">Hent fra IP-plan</button><span class="hint" id="iv-m"></span>
+<div id="iv-out"></div></div>
+</section>
+</main>
+
+<script>
+const $=i=>document.getElementById(i);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const err=s=>`<div class="err">${esc(s)}</div>`;
+const kv=a=>'<dl>'+a.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')+'</dl>';
+const fmt=n=>n.toLocaleString('da-DK');
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v===null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- IP-hjælpere ---------- */
+const p4=s=>{const m=/^\s*(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\s*$/.exec(s);if(!m)return null;let n=0;for(let i=1;i<5;i++){if(+m[i]>255)return null;n=n*256+ +m[i]}return n};
+const s4=n=>[n>>>24,n>>>16&255,n>>>8&255,n&255].join('.');
+const mk4=p=>p?(0xFFFFFFFF<<(32-p))>>>0:0;
+const p6=s=>{s=s.trim().toLowerCase();if(!/^[0-9a-f:]+$/.test(s)||s.split('::').length>2)return null;const[a,b]=s.split('::');let h=a?a.split(':'):[];if(b===undefined){if(h.length!==8)return null}else{const t=b?b.split(':'):[];if(h.length+t.length>7)return null;h=h.concat(Array(8-h.length-t.length).fill('0'),t)}let n=0n;for(const x of h){if(!/^[0-9a-f]{1,4}$/.test(x))return null;n=n<<16n|BigInt('0x'+x)}return n};
+const g6=n=>{const h=[];for(let i=7;i>=0;i--)h.push(Number(n>>BigInt(i*16)&0xffffn));return h};
+const full6=n=>g6(n).map(x=>x.toString(16).padStart(4,'0')).join(':');
+const s6=n=>{const h=g6(n).map(x=>x.toString(16));let best=-1,bl=0;for(let i=0;i<8;){if(h[i]==='0'){let j=i;while(j<8&&h[j]==='0')j++;if(j-i>bl){bl=j-i;best=i}i=j}else i++}if(bl<2)return h.join(':');return h.slice(0,best).join(':')+'::'+h.slice(best+bl).join(':')};
+const bin=(n,l)=>n.toString(2).padStart(l,'0');
+const bits=(b,p,g)=>{let o='';for(let i=0;i<b.length;i++){if(i&&i%g===0)o+='<i class="g"></i>';o+=`<span class="${i<p?'n':''}">${b[i]}</span>`}return o};
+const legend='<div class="legend"><span>netværksdel</span> <span>værtsdel</span></div>';
+/* læs "ip/pre", "ip/maske" eller "ip maske" (IPv4) */
+function parse4(v){const[a,b]=v.trim().split(/[\s/]+/);const ip=p4(a||'');if(ip===null)return{e:'Ugyldig IPv4-adresse. Hver del skal være 0–255, fx 192.168.1.10'};let pre=24;
+if(b!==undefined){if(b.includes('.')){const m=p4(b);const inv=m===null?-1:(~m)>>>0;if(m===null||(inv&(inv+1))!==0)return{e:'Ugyldig netmaske. Maske skal være sammenhængende 1-bits, fx 255.255.255.0'};pre=m.toString(2).replace(/0/g,'').length}else{pre=+b;if(!/^\d+$/.test(b)||pre>32)return{e:'Præfiks skal være et tal mellem 0 og 32'}}}
+return{ip,pre}}
+
+/* ---------- Faner ---------- */
+$('tabs').addEventListener('click',e=>{const t=e.target.dataset.t;if(!t)return;document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t))});
+
+/* ---------- Netværksplan ---------- */
+function addRow(n='',h='',b=''){const d=document.createElement('div');d.className='row';d.innerHTML=`<input class="rn" placeholder="Navn, fx Kontor" value="${esc(n)}" aria-label="Navn"><input class="rh" type="number" min="1" placeholder="Antal enheder" value="${h}" aria-label="Antal enheder"><input class="rb" placeholder="Eget netværk (valgfrit)" value="${esc(b)}" aria-label="Eget stort netværk, valgfrit" autocapitalize="off"><button class="x" aria-label="Fjern netværk">✕</button>`;$('rows').appendChild(d)}
+$('p-pre').onchange=()=>{if($('p-pre').value){$('p-base').value=$('p-pre').value;plan()}};
+$('add').onclick=()=>{addRow('Net '+($('rows').children.length+1),'');plan()};
+$('rows').addEventListener('click',e=>{if(e.target.classList.contains('x')){e.target.parentNode.remove();plan()}});
+$('plan').addEventListener('input',plan);
+const p2=n=>{let s=4;while(s<n)s*=2;return s};
+function plan(){
+store.set('nk-cur',getState());
+const o=$('p-out'),main=$('p-base').value.trim();
+const st=Math.max(0,+$('p-static').value||0),gwFirst=$('p-gw').value==='first',dns=$('p-dns').value.trim(),lease=Math.max(1,+$('p-lease').value||1);
+const rows=[...document.querySelectorAll('.row')].map((d,i)=>({i,name:d.querySelector('.rn').value.trim()||'Net '+(i+1),h:+d.querySelector('.rh').value,b:d.querySelector('.rb').value.trim()||main}));
+if(!rows.length)return o.innerHTML=err('Tilføj mindst ét netværk.');
+const bad=rows.find(x=>!(x.h>=1));if(bad)return o.innerHTML=err(`Skriv antal enheder for "${bad.name}" (mindst 1).`);
+const gr={};
+for(const x of rows){const r=parse4(x.b);if(r.e)return o.innerHTML=err(`Netværksadressen "${x.b}" (${x.name}): ${r.e}`);
+if(r.pre<8||r.pre>30)return o.innerHTML=err(`Netværksadressen "${x.b}" (${x.name}) skal have en størrelse mellem /8 og /30.`);
+const size=2**(32-r.pre),start=Math.floor(r.ip/size)*size,k=start+'/'+r.pre;(gr[k]=gr[k]||{start,pre:r.pre,size,fix:r.ip!==start,rows:[]}).rows.push(x)}
+const G=Object.values(gr);
+for(let a=0;a<G.length;a++)for(let b=0;b<a;b++)if(G[a].start<G[b].start+G[b].size&&G[b].start<G[a].start+G[a].size)return o.innerHTML=err(`De store netværk ${s4(G[b].start)}/${G[b].pre} og ${s4(G[a].start)}/${G[a].pre} overlapper hinanden. Brug adresser, der ikke deler IP'er.`);
+let html='',cfg='',total=0;
+for(const g of G){const rs=g.rows;rs.forEach(x=>{x.size=p2(x.h+1+st+2)});
+const need=rs.reduce((a,x)=>a+x.size,0),nm=s4(g.start)+'/'+g.pre;
+if(need>g.size){let m=g.pre;while(m>1&&2**(32-m)<need)m--;return o.innerHTML=err(`Det kan ikke lade sig gøre i ${nm}. Der skal bruges ${fmt(need)} adresser (inkl. netværks-, broadcast-, gateway- og faste IP'er), men netværket har kun ${fmt(g.size)}. Brug et større netværk (mindst /${m}), flyt et netværk til en anden netværksadresse, eller skriv færre enheder.`)}
+let cur=g.start;[...rs].sort((a,b)=>b.size-a.size||a.i-b.i).forEach(x=>{x.net=cur;cur+=x.size});
+let cards='';
+rs.forEach(x=>{x.pre=32-Math.log2(x.size);x.bc=x.net+x.size-1;const f=x.net+1,l=x.bc-1;x.gw=gwFirst?f:l;
+x.sFrom=gwFirst?f+1:f;x.sTo=x.sFrom+st-1;x.dFrom=x.sFrom+st;x.dTo=gwFirst?l:l-1;x.dn=x.dTo-x.dFrom+1;
+cards+=`<div class="card"><h3 style="margin-top:0">${esc(x.name)}</h3>`+kv([['Netværk',s4(x.net)+'/'+x.pre],['Subnetmaske',s4(mk4(x.pre))],['Gateway (router)',s4(x.gw)],['Faste IP\'er',st?s4(x.sFrom)+' – '+s4(x.sTo):'ingen'],['DHCP-område',s4(x.dFrom)+' – '+s4(x.dTo)+' ('+fmt(x.dn)+' automatiske IP\'er)'],['Broadcast',s4(x.bc)],['Plads',fmt(x.dn-x.h)+' ekstra enheder kan komme til ('+fmt(x.h)+' bad du om)']])+'</div>';
+const n=x.name.replace(/\s+/g,'_');
+cfg+=`! ${x.name}\nip dhcp excluded-address ${s4(x.net+1)} ${s4(x.dFrom-1)}${gwFirst?'':'\nip dhcp excluded-address '+s4(x.gw)}\nip dhcp pool ${n}\n network ${s4(x.net)} ${s4(mk4(x.pre))}\n default-router ${s4(x.gw)}\n${dns?' dns-server '+esc(dns)+'\n':''} lease ${lease}\n\n`});
+const free=g.start+g.size-cur;total+=need;
+html+=`<h2>${G.length>1?'Store netværk '+nm:'Resultat'}</h2><p class="hint">${g.fix?'Adressen er rettet til '+nm+'. ':''}Hvert netværk har fået sit eget område. Bruger ${fmt(need)} af ${fmt(g.size)} adresser. Ledigt til senere: ${fmt(free)}${free?' (fra '+s4(cur)+')':''}.</p>${cards}`}
+o.innerHTML=`<div class="okmsg">✔ Det passer. ${rows.length} netværk${G.length>1?' fordelt på '+G.length+' store netværk':''}.</div>${html}<div class="card"><h2>DHCP-konfiguration</h2><p class="hint">Valgfrit: færdig opsætning af DHCP til Cisco-udstyr. Kopiér og tilpas.</p><textarea id="cfg" readonly>${cfg.trim()}</textarea><button class="btn alt" id="cp">Kopiér</button></div>`;
+$('cp').onclick=()=>{$('cfg').select();navigator.clipboard?.writeText($('cfg').value);$('cp').textContent='Kopieret'}}
+
+/* ---------- IP-beregner ---------- */
+function calc(){const v=$('c-in').value.trim(),o=$('c-out');if(!v)return o.innerHTML='';
+if(v.includes(':')){const[a,b]=v.split('/');const n=p6(a),pre=b===undefined?64:+b;
+if(n===null||!/^\d*$/.test(b||'')||pre>128||b==='')return o.innerHTML=err('Ugyldig IPv6. Eksempel: 2001:db8::1/64');
+const sz=1n<<BigInt(128-pre),net=n&(((1n<<128n)-1n)^(sz-1n)),last=net+sz-1n;
+const t=n===1n?'Loopback':(n>>118n)===0x3fan?'Link-local':(n>>121n)===0x7en?'Unique local (privat)':(n>>120n)===0xffn?'Multicast':(n>>125n)===1n?'Global unicast':'Andet';
+return o.innerHTML=kv([['Adresse',s6(n)],['Fuld form',full6(n)],['Præfiks','/'+pre],['Netværk',s6(net)+'/'+pre],['Første IP',s6(net)],['Sidste IP',s6(last)],['Antal adresser',fmt(sz)],['Type',t]])+'<h3>Bits</h3><div class="bits">'+bits(bin(n,128),pre,16)+'</div>'+legend}
+const r=parse4(v);if(r.e)return o.innerHTML=err(r.e);
+const{ip,pre}=r,m=mk4(pre),net=(ip&m)>>>0,bc=(net|(~m>>>0))>>>0,tot=2**(32-pre);
+const f=pre>=31?net:net+1,l=pre>=31?bc:bc-1,h=pre===32?1:pre===31?2:tot-2;
+const cls=ip>>>28<8?'A':ip>>>28<12?'B':ip>>>28<14?'C':ip>>>28<15?'D (multicast)':'E';
+const inr=(a,p)=>(ip&mk4(p))>>>0===a>>>0;
+const typ=inr(0x0A000000,8)||inr(0xAC100000,12)||inr(0xC0A80000,16)?'Privat':inr(0x7F000000,8)?'Loopback':inr(0xA9FE0000,16)?'Link-local (APIPA)':inr(0x64400000,10)?'CGNAT':inr(0xE0000000,4)?'Multicast':'Offentlig';
+o.innerHTML=kv([['Adresse',s4(ip)],['Netmaske',s4(m)+' = /'+pre],['Wildcard',s4(~m>>>0)],['Netværk',s4(net)+'/'+pre],['Broadcast',pre>=31?'–':s4(bc)],['Første vært',s4(f)],['Sidste vært',s4(l)],['Antal værter',fmt(h)],['Klasse / type',cls+' / '+typ]])+
+'<h3>Bits</h3><div class="bits">'+bits(bin(ip,32),pre,8)+'<br>'+bits(bin(m,32),pre,8)+'<br>'+bits(bin(net,32),pre,8)+'</div>'+legend+'<p class="hint">Linjerne: adresse, maske, netværk.</p>'}
+$('c-in').oninput=calc;
+function memb(){const o=$('m-out'),ip=p4($('m-ip').value),r=parse4($('m-net').value);
+if(ip===null||r.e)return o.innerHTML=err('Skriv en gyldig IPv4 og netværk, fx 192.168.1.77 og 192.168.1.0/26');
+const m=mk4(r.pre),net=(r.ip&m)>>>0,inn=((ip&m)>>>0)===net;
+o.innerHTML=inn?`<div class="okmsg">✔ Ja, ${s4(ip)} ligger i ${s4(net)}/${r.pre} (${s4(net)} – ${s4((net|~m)>>>0)}).</div>`:err(`Nej, ${s4(ip)} ligger ikke i ${s4(net)}/${r.pre} (${s4(net)} – ${s4((net|~m)>>>0)}).`)}
+$('m-ip').oninput=$('m-net').oninput=memb;
+
+/* ---------- Bits ⇄ IP ---------- */
+function conv(){const v=$('v-in').value.trim(),o=$('v-out');if(!v)return o.innerHTML='';let n,L,k=0;
+const c=v.replace(/[\s.]/g,'');
+if(v.includes(':')){n=p6(v);L=128;if(n===null)return o.innerHTML=err('Ugyldig IPv6. Eksempel: fe80::1')}
+else if(/^[01]+$/.test(c)&&(c.length===32||c.length===128)&&/[\s.]|^[01]{32}$|^[01]{128}$/.test(v)){L=c.length;n=BigInt('0b'+c);k=1}
+else if(/^\d+\.\d+\.\d+\.\d+$/.test(v)){const x=p4(v);if(x===null)return o.innerHTML=err('Ugyldig IPv4. Hver del skal være 0–255.');n=BigInt(x);L=32}
+else if(/^0x[0-9a-f]+$/i.test(v)){n=BigInt(v);L=n>0xFFFFFFFFn?128:32}
+else if(/^\d+$/.test(v)){n=BigInt(v);L=n>0xFFFFFFFFn?128:32}
+else return o.innerHTML=err('Kan ikke genkende formatet. Skriv en IP, 32 eller 128 bits, et decimaltal eller hex (0x…).');
+if(n>=(1n<<BigInt(L)))return o.innerHTML=err('Tallet er for stort til en IP-adresse.');
+const dr=$('v-dir').value;
+if(dr==='b'&&!k)return o.innerHTML=err('Du har valgt Bits → IP. Skriv bits, fx 11000000.10101000.00000001.00001010');
+if(dr==='i'&&k)return o.innerHTML=err('Du har valgt IP → bits. Skriv en IP, et decimaltal eller hex.');
+const b=n.toString(2).padStart(L,'0');
+o.innerHTML=L===32?kv([['IPv4',s4(Number(n))],['Bits','<span class="bits">'+bits(b,0,8)+'</span>'],['Decimal',n.toString()],['Hex','0x'+n.toString(16).toUpperCase().padStart(8,'0')]]):
+kv([['IPv6',s6(n)],['Fuld form',full6(n)],['Bits','<span class="bits">'+bits(b,0,16)+'</span>'],['Hex','0x'+n.toString(16).padStart(32,'0')]])}
+$('v-in').oninput=conv;
+
+/* ---------- Værktøjer ---------- */
+function xfer(){const s=+$('t-size').value*$('t-su').value*8,sp=+$('t-sp').value*$('t-spu').value;
+if(!(sp>0)||!(s>=0))return $('t-out').innerHTML=err('Skriv størrelse og hastighed over 0.');
+let t=s/sp;const d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),sec=Math.round(t%60);
+$('t-out').innerHTML=kv([['Tid',(d?d+' d ':'')+(h?h+' t ':'')+(m?m+' min ':'')+sec+' sek'],['Sekunder',fmt(Math.round(t))]])+'<p class="hint">Teoretisk tid uden overhead. I praksis regn med 5–15 % ekstra.</p>'}
+['t-size','t-su','t-sp','t-spu'].forEach(i=>$(i).oninput=xfer);
+function base(){const b=+$('b-base').value;let v=$('b-in').value.trim().replace(/^0[xb]/i,'').replace(/\s/g,'');
+const ok={10:/^\d+$/,2:/^[01]+$/,16:/^[0-9a-f]+$/i,8:/^[0-7]+$/}[b];
+if(!v||!ok.test(v))return $('b-out').innerHTML=err('Tallet passer ikke til det valgte talsystem.');
+let n=0n;for(const ch of v)n=n*BigInt(b)+BigInt(parseInt(ch,16));
+$('b-out').innerHTML=kv([['Decimal',n.toString()],['Binær',n.toString(2)],['Hex',n.toString(16).toUpperCase()],['Oktal',n.toString(8)]])}
+$('b-in').oninput=$('b-base').oninput=base;
+let ct='<tr><th>CIDR</th><th>Maske</th><th>Adresser</th><th>Værter</th></tr>';
+for(let p=8;p<=32;p++){const a=2**(32-p);ct+=`<tr><td class="m">/${p}</td><td class="m">${s4(mk4(p))}</td><td>${fmt(a)}</td><td>${fmt(p>=31?(p===32?1:2):a-2)}</td></tr>`}
+$('cidr').innerHTML=ct;
+
+/* ---------- Gemte netværksplaner ---------- */
+const getState=()=>({base:$('p-base').value,gw:$('p-gw').value,static:$('p-static').value,dns:$('p-dns').value,lease:$('p-lease').value,rows:[...document.querySelectorAll('.row')].map(d=>[d.querySelector('.rn').value,d.querySelector('.rh').value,d.querySelector('.rb').value])});
+function setState(s){$('p-base').value=s.base;$('p-gw').value=s.gw;$('p-static').value=s.static;$('p-dns').value=s.dns;$('p-lease').value=s.lease;$('rows').innerHTML='';s.rows.forEach(r=>addRow(r[0],r[1],r[2]));plan()}
+function plans(sel){const p=store.get('nk-plans',{});$('s-sel').innerHTML='<option value="">Vælg…</option>'+Object.keys(p).map(k=>`<option>${esc(k)}</option>`).join('');if(sel)$('s-sel').value=sel;return p}
+$('s-save').onclick=()=>{const n=$('s-name').value.trim();if(!n)return $('s-msg').textContent='Skriv et navn først.';const p=store.get('nk-plans',{});p[n]=getState();store.set('nk-plans',p);plans(n);$('s-msg').textContent='Gemt som "'+n+'".'};
+$('s-sel').onchange=()=>{const n=$('s-sel').value,p=store.get('nk-plans',{});if(n&&p[n]){setState(p[n]);$('s-name').value=n;$('s-msg').textContent='Åbnet "'+n+'".'}};
+$('s-new').onclick=()=>{setState({base:'192.168.0.0/16',gw:'first',static:5,dns:'1.1.1.1',lease:1,rows:[['Net 1',10]]});$('s-name').value='';plans();$('s-msg').textContent='Ny tom plan.'};
+$('s-del').onclick=()=>{const n=$('s-sel').value,p=store.get('nk-plans',{});if(!n)return $('s-msg').textContent='Vælg en gemt plan først.';delete p[n];store.set('nk-plans',p);plans();$('s-msg').textContent='Slettet "'+n+'".'};
+
+/* ---------- Wildcard / ACL ---------- */
+function aa(s){s=s.trim().toLowerCase();if(s===''||s==='any')return{t:'any',d:'alle adresser'};
+const m=s.replace(/^host\s+/,''),r=parse4(/[\s/]/.test(m)?m:m+'/32');if(r.e)return null;
+const k=mk4(r.pre),n=(r.ip&k)>>>0;if(r.pre===32)return{t:'host '+s4(n),d:'én maskine ('+s4(n)+')'};
+return{t:s4(n)+' '+s4(~k>>>0),d:s4(n)+'/'+r.pre+' = '+s4(n)+' – '+s4((n|~k)>>>0)+', wildcard '+s4(~k>>>0)}}
+function acl(){const o=$('a-out'),s=aa($('a-src').value),d=aa($('a-dst').value);
+if(!s||!d)return o.innerHTML=err('Ugyldig adresse. Brug any, en enkelt IP (192.168.1.5) eller et netværk (192.168.1.0/24).');
+const pr=$('a-pro').value,tu=pr==='tcp'||pr==='udp',p=$('a-port').value.trim(),pt=tu&&p?(/^\d+-\d+$/.test(p)?' range '+p.replace('-',' '):' eq '+p):'';
+const ln=`${$('a-act').value} ${pr} ${s.t} ${d.t}${pt}`,nm=($('a-name').value.trim()||'MIN-ACL').replace(/\s+/g,'-');
+o.innerHTML=kv([['Kilde',esc(s.d)],['Mål',esc(d.d)]])+`<h3>Færdig regel</h3><textarea readonly>ip access-list extended ${esc(nm)}\n ${esc(ln)}\n\n! eller som nummereret liste:\naccess-list 100 ${esc(ln)}</textarea>`+(p&&!tu?'<p class="hint">Port bruges kun sammen med tcp og udp.</p>':'')+'<p class="hint">Husk: der ligger altid et skjult “deny ip any any” til sidst i en ACL. Sæt den på den rigtige interface og i den rigtige retning (in/out).</p>'}
+function rng(){const a=p4($('r-a').value),b=p4($('r-b').value),o=$('r-out');
+if(a===null||b===null||a>b)return o.innerHTML=err('Skriv en gyldig første og sidste IP. Første må ikke være større end sidste.');
+let c=a,L=[];while(c<=b){let s=1;while(c%(s*2)===0&&c+s*2-1<=b&&s<2**32)s*=2;L.push([s4(c)+'/'+(32-Math.log2(s)),s===1?'host '+s4(c):s4(c)+' '+s4(s-1)]);c+=s}
+o.innerHTML=kv(L)+'<p class="hint">Til venstre netværket, til højre som det skrives i ACL (adresse + wildcard).</p>'}
+$('acl').addEventListener('input',()=>{acl();rng()});
+
+/* ---------- IP- og portplan ---------- */
+const IPP=store.get('nk-ipplan',{n:[['10','Kontor','192.168.10.0/24','192.168.10.1','']],d:[['Printer-1','192.168.10.20','10','Gi1/0/5','1. sal']]});
+const IC={n:['VLAN','Navn','Netværk','Gateway','Note'],d:['Enhed','IP','VLAN','Switchport','Note']};
+const ipSave=()=>store.set('nk-ipplan',IPP);
+function ipRender(){for(const k of['n','d'])$('ip'+k).innerHTML='<table><tr>'+IC[k].map(c=>`<th>${c}</th>`).join('')+'<th></th></tr>'+IPP[k].map((r,i)=>'<tr>'+IC[k].map((c,j)=>`<td><input class="ii" data-k="${k}" data-r="${i}" data-c="${j}" value="${esc(r[j]||'')}" aria-label="${c}"></td>`).join('')+`<td><button class="ix" data-k="${k}" data-r="${i}" aria-label="Fjern række">✕</button></td></tr>`).join('')+'</table>';ipCheck()}
+$('ipp').addEventListener('input',e=>{const t=e.target;if(!t.classList.contains('ii'))return;IPP[t.dataset.k][t.dataset.r][t.dataset.c]=t.value;ipSave();ipCheck()});
+$('ipp').addEventListener('click',e=>{const t=e.target;if(t.classList.contains('ix')){IPP[t.dataset.k].splice(t.dataset.r,1);ipSave();ipRender()}else if(t.dataset.add){IPP[t.dataset.add].push(['','','','','']);ipSave();ipRender()}});
+function ipCheck(){const m=[],seen={},nm=(r,i)=>r[1]||'række '+(i+1),
+rg=IPP.n.map(r=>{const p=r[2]&&parse4(r[2]);if(!p||p.e)return null;const k=mk4(p.pre),a=(p.ip&k)>>>0;return{a,b:(a|~k)>>>0}});
+IPP.n.forEach((r,i)=>{if(r[0]){if(!/^\d+$/.test(r[0])||r[0]<1||r[0]>4094)m.push(`VLAN ${r[0]} (${nm(r,i)}) er ugyldigt. Brug et tal fra 1 til 4094.`);if(seen[r[0]])m.push(`VLAN ${r[0]} er brugt to gange.`);seen[r[0]]=1}
+if(r[2]&&!rg[i])m.push(`Netværket "${r[2]}" (${nm(r,i)}) er ugyldigt. Skriv fx 192.168.10.0/24.`);
+else if(r[2]&&r[3]){const g=p4(r[3]);if(g===null)m.push(`Gateway for ${nm(r,i)} er ikke en gyldig IP.`);else if(g<rg[i].a||g>rg[i].b)m.push(`Gateway ${r[3]} ligger ikke i netværket ${r[2]}.`)}
+for(let j=0;j<i;j++)if(rg[i]&&rg[j]&&rg[i].a<=rg[j].b&&rg[j].a<=rg[i].b)m.push(`${nm(r,i)} (${r[2]}) overlapper ${nm(IPP.n[j],j)} (${IPP.n[j][2]}).`)});
+const ips={};
+IPP.d.forEach((r,i)=>{if(!r[1])return;const ip=p4(r[1]),n=r[0]||'række '+(i+1);if(ip===null)return m.push(`IP "${r[1]}" ved ${n} er ikke gyldig.`);
+if(ips[ip])m.push(`IP ${r[1]} bruges både af ${ips[ip]} og ${n}.`);ips[ip]=n;
+if(r[2]){const j=IPP.n.findIndex(x=>x[0].trim()===r[2].trim());if(j<0)m.push(`${n}: VLAN ${r[2]} findes ikke i listen over netværk.`);else if(rg[j]){if(ip<rg[j].a||ip>rg[j].b)m.push(`${n}: ${r[1]} ligger ikke i VLAN ${r[2]} (${IPP.n[j][2]}).`);else if(ip===rg[j].a||ip===rg[j].b)m.push(`${n}: ${r[1]} er netværks- eller broadcast-adressen.`)}}});
+$('ipchk').innerHTML=m.length?m.map(err).join(''):(IPP.n.length+IPP.d.length?'<div class="okmsg">✔ Ingen fejl fundet i planen.</div>':'')}
+
+/* ---------- Excel-download (xlsx uden eksterne filer) ---------- */
+const crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function zip(files){const te=new TextEncoder(),u16=n=>[n&255,n>>8&255],u32=n=>[n&255,n>>8&255,n>>16&255,n>>>24],out=[],cd=[];let off=0;
+for(const[n,s]of files){const nb=te.encode(n),d=te.encode(s);let c=-1;for(const x of d)c=crcT[(c^x)&255]^(c>>>8);c=(c^-1)>>>0;
+const h=new Uint8Array([0x50,0x4b,3,4,...u16(20),...u16(0),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(d.length),...u32(d.length),...u16(nb.length),...u16(0)]);
+out.push(h,nb,d);cd.push(new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(d.length),...u32(d.length),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nb);off+=h.length+nb.length+d.length}
+const cl=cd.reduce((a,x)=>a+x.length,0);out.push(...cd,new Uint8Array([0x50,0x4b,5,6,0,0,0,0,...u16(files.length),...u16(files.length),...u32(cl),...u32(off),0,0]));
+return new Blob(out,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+function sheetXml(rows){return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols><col min="1" max="5" width="26" customWidth="1"/></cols><sheetData>'+rows.map((r,i)=>`<row r="${i+1}">`+r.map((v,j)=>`<c r="${String.fromCharCode(65+j)}${i+1}" t="inlineStr"${i?'':' s="1"'}><is><t>${esc(v||'')}</t></is></c>`).join('')+'</row>').join('')+'</sheetData></worksheet>'}
+$('xl').onclick=()=>{const X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',P='http://schemas.openxmlformats.org/package/2006/relationships',R='http://schemas.openxmlformats.org/officeDocument/2006/relationships/',W='application/vnd.openxmlformats-officedocument.spreadsheetml.';
+const f=[['[Content_Types].xml',X+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="${W}sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="${W}worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="${W}worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="${W}styles+xml"/></Types>`],
+['_rels/.rels',X+`<Relationships xmlns="${P}"><Relationship Id="rId1" Type="${R}officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+['xl/workbook.xml',X+`<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${R.slice(0,-1)}"><sheets><sheet name="VLAN og netværk" sheetId="1" r:id="rId1"/><sheet name="Enheder og porte" sheetId="2" r:id="rId2"/></sheets></workbook>`],
+['xl/_rels/workbook.xml.rels',X+`<Relationships xmlns="${P}"><Relationship Id="rId1" Type="${R}worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="${R}worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="${R}styles" Target="styles.xml"/></Relationships>`],
+['xl/styles.xml',X+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="2"><xf/><xf fontId="1" applyFont="1"/></cellXfs></styleSheet>'],
+['xl/worksheets/sheet1.xml',sheetXml([IC.n,...IPP.n])],['xl/worksheets/sheet2.xml',sheetXml([IC.d,...IPP.d])]];
+const a=document.createElement('a');a.href=URL.createObjectURL(zip(f));a.download='ip-plan.xlsx';document.body.appendChild(a);a.click();a.remove()};
+
+/* ---------- Porte ---------- */
+$('ports').innerHTML='<tr><th>Port</th><th>Protokol</th><th>Tjeneste</th></tr>'+'20 TCP FTP data|21 TCP FTP|22 TCP SSH|23 TCP Telnet|25 TCP SMTP|53 TCP/UDP DNS|67 UDP DHCP server|68 UDP DHCP klient|69 UDP TFTP|80 TCP HTTP|110 TCP POP3|123 UDP NTP|143 TCP IMAP|161 UDP SNMP|162 UDP SNMP trap|179 TCP BGP|389 TCP/UDP LDAP|443 TCP HTTPS|445 TCP SMB|500 UDP IPsec IKE|514 UDP Syslog|587 TCP SMTP (submission)|636 TCP LDAPS|993 TCP IMAPS|1433 TCP MS SQL|1812 UDP RADIUS|3306 TCP MySQL|3389 TCP RDP|4500 UDP IPsec NAT-T|5432 TCP PostgreSQL|8080 TCP HTTP alternativ'.split('|').map(x=>{const[p,q,...n]=x.split(' ');return`<tr><td class="m">${p}</td><td>${q}</td><td>${n.join(' ')}</td></tr>`}).join('');
+$('pf').oninput=()=>{const q=$('pf').value.toLowerCase();document.querySelectorAll('#ports tr').forEach((r,i)=>r.style.display=!i||r.textContent.toLowerCase().includes(q)?'':'none')};
+$('v-dir').onchange=conv;
+
+/* ---------- Online-status ---------- */
+const SP=[['Cloudflare','https://www.cloudflarestatus.com'],['GitHub','https://www.githubstatus.com'],['Discord','https://discordstatus.com'],['Reddit','https://www.redditstatus.com'],['Zoom','https://www.zoomstatus.com']];
+const RC=[['Google','https://www.google.com/generate_204'],['YouTube','https://www.youtube.com/favicon.ico'],['Facebook','https://www.facebook.com/favicon.ico'],['Steam','https://store.steampowered.com/favicon.ico'],['Microsoft','https://www.microsoft.com/favicon.ico'],['Amazon','https://www.amazon.com/favicon.ico'],['Wikipedia','https://www.wikipedia.org/static/favicon/wikipedia.ico'],['Cloudflare DNS (1.1.1.1)','https://one.one.one.one/favicon.ico']];
+let ST=store.get('nk-status',[]),stT=null,stN=10,stBusy=false,stPause=false;const R={};
+function stRender(){const row=(k,n,sub)=>{const x=R[k]||{c:'na',t:'Tjekker…'};return `<div class="st"><i class="dot ${x.c}"></i><div><b>${esc(n)}</b><div class="hint">${esc(x.t)}${x.ms!=null?', '+x.ms+' ms':''}</div></div>${sub}</div>`};
+$('st-list').innerHTML='<h3>Officielle statussider</h3>'+SP.map(s=>row(s[1],s[0],'')).join('')+'<h3>Kan nås fra din browser</h3>'+RC.map(s=>row(s[1],s[0],'')).join('')+'<h3>Dine egne servere</h3>'+(ST.length?ST.map((s,i)=>row(s[1],s[0],`<button class="ix" data-rm="${i}" aria-label="Fjern ${esc(s[0])}">✕</button>`)).join(''):'<p class="hint">Ingen endnu. Tilføj en https-adresse nedenfor.</p>')}
+async function chkReach(u){const t=performance.now(),c=new AbortController(),to=setTimeout(()=>c.abort(),8000);
+try{await fetch(u+(u.includes('?')?'&':'?')+'t='+Date.now(),{mode:'no-cors',cache:'no-store',signal:c.signal});const ms=Math.round(performance.now()-t);R[u]={c:ms>1500?'warn':'ok',t:ms>1500?'Svarer langsomt':'Online',ms}}
+catch(e){R[u]={c:'bad',t:c.signal.aborted?'Svarer ikke (timeout)':'Kan ikke nås'}}clearTimeout(to)}
+async function chkSP(k){try{const j=await(await fetch(k+'/api/v2/status.json',{cache:'no-store'})).json(),i=j.status.indicator;
+R[k]=i==='none'?{c:'ok',t:'Alt kører normalt'}:i==='minor'||i==='maintenance'?{c:'warn',t:'Mindre problemer eller vedligehold: '+j.status.description}:{c:'bad',t:'Større problemer: '+j.status.description}}
+catch(e){R[k]={c:'na',t:'Kunne ikke hente status'}}}
+async function stTick(){if(stBusy)return;stBusy=true;await Promise.all([...SP.map(s=>chkSP(s[1])),...RC.map(s=>chkReach(s[1])),...ST.map(s=>chkReach(s[1]))]);stBusy=false;stRender();
+const bad=RC.filter(s=>R[s[1]]&&R[s[1]].c==='bad').length;
+$('st-sum').innerHTML=navigator.onLine===false||bad>=RC.length-1?err('Det ser ud til, at din egen internetforbindelse er nede. Næsten ingenting kan nås herfra.'):bad?'<p class="hint">Nogle tjenester kan ikke nås. Det kan være en fejl hos dem, men også en adblocker eller firewall hos dig.</p>':'<div class="okmsg">✔ Din forbindelse virker, og de tjekkede tjenester kan nås.</div>'}
+function stGo(){clearInterval(stT);stT=null;if(!$('stat').classList.contains('on')||document.hidden)return;stN=10;$('st-cd').textContent=stN;stTick();
+stT=setInterval(()=>{if(stPause)return;stN--;$('st-cd').textContent=stN;if(stN<=0){stN=10;$('st-cd').textContent=stN;stTick()}},1000)}
+$('tabs').addEventListener('click',()=>setTimeout(stGo,0));document.addEventListener('visibilitychange',stGo);
+$('st-p').onclick=()=>{stPause=!stPause;$('st-p').textContent=stPause?'Fortsæt':'Pause'};
+$('st-list').addEventListener('click',e=>{const i=e.target.dataset.rm;if(i===undefined)return;ST.splice(i,1);store.set('nk-status',ST);stRender()});
+$('st-add').onclick=()=>{let u=$('st-u').value.trim();if(!u)return $('st-m').textContent=' Skriv en adresse først.';if(!/^https?:\/\//i.test(u))u='https://'+u;let h;try{h=new URL(u)}catch(e){return $('st-m').textContent=' Adressen er ikke gyldig.'}
+if(h.protocol!=='https:')return $('st-m').textContent=' Brug https. En http-adresse bliver blokeret af browseren på denne side.';
+ST.push([$('st-n').value.trim()||h.hostname,h.href]);store.set('nk-status',ST);$('st-n').value=$('st-u').value='';$('st-m').textContent=' Tilføjet.';stRender();stTick()};
+stRender();
+
+/* ---------- Inter-VLAN ---------- */
+const IV=store.get('nk-ivl',{m:'rosa',rt:'GigabitEthernet0/0',sw:'GigabitEthernet0/1',v:[['10','Kontor','192.168.10.1/24'],['20','Gæster','192.168.20.1/24']]});
+const ivSave=()=>store.set('nk-ivl',IV);
+function ivRender(){$('i-m').value=IV.m;$('i-rt').value=IV.rt;$('i-sw').value=IV.sw;
+$('ivt').innerHTML='<table><tr><th>VLAN-nummer</th><th>Navn</th><th>Gateway/størrelse</th><th></th></tr>'+IV.v.map((r,i)=>'<tr>'+['VLAN-nummer','Navn','Gateway med størrelse, fx 192.168.10.1/24'].map((c,j)=>`<td><input class="vi" data-r="${i}" data-c="${j}" value="${esc(r[j]||'')}" aria-label="${c}"></td>`).join('')+`<td><button class="ix" data-rm="${i}" aria-label="Fjern VLAN">✕</button></td></tr>`).join('')+'</table>';ivOut()}
+function ivOut(){const o=$('iv-out'),m=[],ok=[],seen={},v=IV.v.filter(r=>r[0]||r[1]||r[2]);if(!v.length)return o.innerHTML='';
+v.forEach(r=>{const nm=r[1]||'VLAN '+r[0];let good=true;
+if(!/^\d+$/.test(r[0])||r[0]<1||r[0]>4094){m.push(`VLAN-nummer "${r[0]}" (${nm}) er ugyldigt. Brug et tal fra 1 til 4094.`);good=false}else if(seen[r[0]]){m.push(`VLAN ${r[0]} er brugt to gange.`);good=false}seen[r[0]]=1;
+const p=parse4(r[2]||'');if(p.e||!(r[2]||'').includes('/')||p.pre>30){m.push(`Gateway for ${nm} skal skrives som IP og størrelse mellem /8 og /30, fx 192.168.10.1/24.`);return}
+const k=mk4(p.pre),a=(p.ip&k)>>>0,b=(a|~k)>>>0;if(p.ip===a||p.ip===b){m.push(`Gateway ${r[2]} er netværks- eller broadcast-adressen. Vælg en IP midt i netværket.`);good=false}
+ok.forEach(x=>{if(a<=x.b&&x.a<=b){m.push(`${nm} (${s4(a)}/${p.pre}) overlapper ${x.nm}. Hvert VLAN skal have sit eget netværk, ellers ved routeren ikke hvor trafikken skal hen.`);good=false}});
+if(good)ok.push({id:r[0],nm,ip:p.ip,pre:p.pre,a,b})});
+if(m.length)return o.innerHTML=m.map(err).join('');
+const mask=x=>s4(mk4(x.pre)),fx=x=>x.nm.replace(/\s+/g,'_'),vl=ok.map(x=>`vlan ${x.id}\n name ${fx(x)}`).join('\n'),ids=ok.map(x=>x.id).join(','),
+pc=`! Eksempel: port til en PC i VLAN ${ok[0].id}\ninterface GigabitEthernet0/2\n switchport mode access\n switchport access vlan ${ok[0].id}`;let a,b,ta,tb;
+if(IV.m==='rosa'){ta='Router';a=`interface ${IV.rt}\n no shutdown\n`+ok.map(x=>`!\ninterface ${IV.rt}.${x.id}\n description ${fx(x)}\n encapsulation dot1Q ${x.id}\n ip address ${s4(x.ip)} ${mask(x)}`).join('\n');
+tb='Switch';b=`${vl}\n!\ninterface ${IV.sw}\n description Trunk til router\n ! Nogle ældre switche kræver først: switchport trunk encapsulation dot1q\n switchport mode trunk\n switchport trunk allowed vlan ${ids}\n!\n${pc}`}
+else{ta='Layer 3-switch';a=`ip routing\n!\n${vl}\n`+ok.map(x=>`!\ninterface vlan ${x.id}\n description ${fx(x)}\n ip address ${s4(x.ip)} ${mask(x)}\n no shutdown`).join('\n')+`\n!\n${pc}`}
+o.innerHTML=`<div class="okmsg">✔ Planen passer sammen.</div><h3>Det der sker</h3><ul>`+ok.map(x=>`<li>VLAN ${x.id} (${esc(x.nm)}) får netværket ${s4(x.a)}/${x.pre}. PC'erne i VLAN ${x.id} bruger ${s4(x.ip)} som gateway.</li>`).join('')+`</ul><p class="hint">Vil en PC i ${ok.length>1?'VLAN '+ok[0].id+' tale med en PC i VLAN '+ok[1].id:'et VLAN tale med et andet'}, sender den pakken til sin gateway. ${IV.m==='rosa'?'Routeren':'Switchen'} ser, at målet ligger i det andet VLAN, og sender pakken videre dertil.</p>`+
+`<h3>${ta}</h3><textarea readonly>${esc(a)}</textarea>`+(b?`<h3>${tb}</h3><textarea readonly>${esc(b)}</textarea>`:'')+
+`<h3>Test at det virker</h3><ol><li>Sæt en PC i det ene VLAN med en IP i netværket og gatewayen som standard-gateway.</li><li>Ping gatewayen. Svarer den ikke, er fejlen i VLAN eller port.</li><li>Ping en PC i det andet VLAN.</li><li>Virker det ikke: tjek <span class="m">show vlan brief</span>${IV.m==='rosa'?', <span class="m">show interfaces trunk</span>':''}, <span class="m">show ip interface brief</span> og om en ACL blokerer.</li></ol>`}
+['input','change'].forEach(ev=>$('ivl').addEventListener(ev,e=>{const t=e.target;if(t.classList.contains('vi'))IV.v[t.dataset.r][t.dataset.c]=t.value;else if(t.id==='i-m')IV.m=t.value;else if(t.id==='i-rt')IV.rt=t.value;else if(t.id==='i-sw')IV.sw=t.value;else return;ivSave();ivOut()}));
+$('ivl').addEventListener('click',e=>{const t=e.target;if(t.dataset.rm!==undefined){IV.v.splice(t.dataset.rm,1);ivSave();ivRender()}else if(t.id==='iv-add'){IV.v.push(['','','']);ivSave();ivRender()}
+else if(t.id==='iv-imp'){const n=IPP.n.filter(r=>r[0]&&r[2]);if(!n.length)return $('iv-m').textContent=' Der er ingen VLAN i IP-planen endnu.';IV.v=n.map(r=>{const p=parse4(r[2]);return[r[0],r[1],r[3]&&!p.e?r[3]+'/'+p.pre:'']});ivSave();ivRender();$('iv-m').textContent=' Hentet fra IP-planen.'}});
+
+/* start */
+const cur=store.get('nk-cur',null);
+if(cur)setState(cur);else{addRow('Kontor',50);addRow('Gæster',20);addRow('Servere',10);plan()}
+plans();calc();memb();conv();xfer();base();acl();rng();ipRender();ivRender();
+</script>
+</body>
+</html>
